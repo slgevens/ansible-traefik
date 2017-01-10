@@ -1,0 +1,34 @@
+---
+
+- name: check install & config directory
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ traefik_install_dir }}"
+    - "{{ traefik_config_dir }}"
+
+- name: download Traefik
+  get_url:
+    url: "{{ item.url }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: 0755
+  notify: restart traefik
+  with_items:
+    - url: "{{ traefik_binary_url }}"
+      dest: "{{ traefik_bin_path }}"
+
+- name: config
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ traefik_config_dir }}/{{ item }}"
+    owner: root
+    group: root
+    mode: 0744
+  with_items:
+    - traefik.toml
+    - rules.toml
+  notify: restart traefik
+  tags: traefik_config
