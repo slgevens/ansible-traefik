@@ -38,6 +38,12 @@ Example Playbook
      - { role: jebovic.traefik }
 ```
 
+Example : config
+----------------
+
+```yaml
+```
+
 Tags
 ----
 
