@@ -1,26 +1,24 @@
 ---
 
-- name: check install & config directory
+- name: main.yml | Create "{{ traefik_config_dir }}"
   file:
     path: "{{ item }}"
     state: directory
   with_items:
-    - "{{ traefik_install_dir }}"
     - "{{ traefik_config_dir }}"
 
-- name: download Traefik
+- name: main.yml | Download and install Traefik in "{{ traefik_install_dir }}"
   get_url:
     url: "{{ item.url }}"
     dest: "{{ item.dest }}"
     owner: root
     group: root
     mode: 0755
-  notify: restart traefik
   with_items:
     - url: "{{ traefik_binary_url }}"
       dest: "{{ traefik_bin_path }}"
 
-- name: config
+- name: main.yml | Template Traefik config and unit
   template:
     src: "{{ item }}.j2"
     dest: "{{ traefik_config_dir }}/{{ item }}"
@@ -30,5 +28,6 @@
   with_items:
     - traefik.toml
     - rules.toml
+    - unit
   notify: restart traefik
   tags: traefik_config

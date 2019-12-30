@@ -1,0 +1,64 @@
+#jinja2: line_statement_prefix: "%", line_comment_prefix: "##"
+# {{ ansible_managed }}
+
+[Unit]
+% if traefik_unit_description is defined
+Description="{{ traefik_unit_description }}"
+% else
+Description="Traefik unit service"
+% endif
+% if traefik_unit_documentation is defined
+Documentation="{{ traefik_unit_documentation }}"
+% else
+Documentation="https://docs.traefik.io/"
+% endif
+% if traefik_unit_start_after is defined 
+After={{ traefik_unit_start_after }}
+% else
+After=network.target auditd.service
+% endif
+
+[Service]
+% if traefik_unit_type is defined
+Type={{traefik_unit_type}}
+% else
+Type=oneshot
+% endif
+% if traefik_unit_user is defined
+User={{ traefik_unit_user }}
+% else
+User=root
+% endif
+% if traefik_unit_group is defined
+Group={{ traefik_unit_group }}
+% else
+Group=root
+% endif
+% if traefik_unit_parameters is defined
+ExecStart={{ traefik_unit_exec_start }} {{ traefik_unit_parameters }}
+% else
+ExecStart={{ traefik_unit_exec_start }}
+% endif
+% if traefik_unit_exec_stop is defined
+ExecStop={{ traefik_unit_exec_stop }}
+% else
+ExecStop=/bin/kill -s QUIT $MAINPID
+% endif
+% if traefik_unit_restart is defined
+Restart={{ traefik_unit_restart }}
+% else
+Restart=always
+% endif
+% if traefik_unit_limit_interval_sec is defined
+StartLimitIntervalSec={{ traefik_unit_limit_interval_sec }}
+% else
+StartLimitIntervalSec=60
+% endif
+% if traefik_unit_start_limit_burst is defined
+StartLimitBurst={{ traefik_unit_start_limit_burst }}
+% else
+StartLimitBurst=3
+% endif
+
+[Install]
+WantedBy=multi-user.target
