@@ -1,3 +1,8 @@
+#jinja2: line_statement_prefix: "%", line_comment_prefix: "##"
 # {{ ansible_managed }}
 
+% if traefik_dynamic_config is defined
 {{ traefik_dynamic_config }}
+% else
+# Here is located the dynamic configuration
+% endif

@@ -1,13 +1,6 @@
 ---
-
 # Traefik installation configuration
 traefik_install_dir: /usr/local/bin
 traefik_binary_url: https://github.com/containous/traefik/releases/download/v1.1.2/traefik_linux-amd64
 traefik_bin_path: "{{ traefik_install_dir }}/traefik"
 traefik_config_dir: /etc/traefik
-
-traefik_static_config: |
-                        # Add your custom static config here
-
-traefik_dynamic_config: |
-                        # Add your custom dynamic config here
