@@ -27,6 +27,9 @@ traefik_static_config: |
 
 traefik_dynamic_config: |
                         # Add your custom dynamic config here
+
+traefik_unit_exec_start: "{{ traefik_bin_path }}"
+traefik_unit_parameters: --configFile=/etc/traefik/traefik.toml --log.level=DEBUG --log.filepath=/var/log/traefik.log --accesslog=true --accesslog.filepath=/var/log/traefik-access.log
 ```
 
 Example Playbook

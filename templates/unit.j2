@@ -22,7 +22,7 @@ After=network.target auditd.service
 % if traefik_unit_type is defined
 Type={{traefik_unit_type}}
 % else
-Type=oneshot
+Type=simple
 % endif
 % if traefik_unit_user is defined
 User={{ traefik_unit_user }}
@@ -47,12 +47,12 @@ ExecStop=/bin/kill -s QUIT $MAINPID
 % if traefik_unit_restart is defined
 Restart={{ traefik_unit_restart }}
 % else
-Restart=always
+Restart=on-failure
 % endif
 % if traefik_unit_limit_interval_sec is defined
-StartLimitIntervalSec={{ traefik_unit_limit_interval_sec }}
+StartLimitInterval={{ traefik_unit_limit_interval_sec }}
 % else
-StartLimitIntervalSec=60
+StartLimitInterval=60
 % endif
 % if traefik_unit_start_limit_burst is defined
 StartLimitBurst={{ traefik_unit_start_limit_burst }}

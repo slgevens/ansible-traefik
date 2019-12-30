@@ -1,33 +1,51 @@
 ---
-
-- name: main.yml | Create "{{ traefik_config_dir }}"
+- name: main.yml | Create {{ traefik_config_dir }}
   file:
     path: "{{ item }}"
     state: directory
   with_items:
     - "{{ traefik_config_dir }}"
 
-- name: main.yml | Download and install Traefik in "{{ traefik_install_dir }}"
+- name: main.yml | Download Traefik binary and install in {{ traefik_install_dir }}
   get_url:
-    url: "{{ item.url }}"
-    dest: "{{ item.dest }}"
+    url: "{{ traefik_binary_url }}"
+    dest: "{{ traefik_install_dir }}"
     owner: root
     group: root
     mode: 0755
-  with_items:
-    - url: "{{ traefik_binary_url }}"
-      dest: "{{ traefik_bin_path }}"
+  when: traefik_binary_url is defined
+
+- name: main.yml | Download Traefik binary archive and install in {{ traefik_install_dir }}
+  unarchive:
+    src: "{{ traefik_archive_url }}"
+    dest: "{{ traefik_install_dir }}"
+    owner: root
+    group: root
+    mode: 0755
+    remote_src: yes
+  when: traefik_archive_url is defined
 
 - name: main.yml | Template Traefik config and unit
   template:
-    src: "{{ item }}.j2"
-    dest: "{{ traefik_config_dir }}/{{ item }}"
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
     owner: root
     group: root
-    mode: 0744
+    mode: "{{ item.mode }}"
   with_items:
-    - traefik.toml
-    - rules.toml
-    - unit
+    - { src: traefik.toml.j2, dest: "{{ traefik_config_dir }}/traefik.toml", mode: '0755' }
+    - { src: rules.toml.j2, dest: "{{ traefik_config_dir }}/rules.toml", mode: '0755' }
+    - { src: unit.j2, dest: /etc/systemd/system/traefik.service, mode: '0644'}
   notify: restart traefik
   tags: traefik_config
+
+- name: main.yml | Force systemd to reread configs
+  systemd: 
+    daemon_reload: yes
+
+- name: main.yml | Enable unit service and ensure it is not masked
+  systemd: 
+    name: traefik.service 
+    enabled: yes 
+    masked: no 
+    state: started
