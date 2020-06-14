@@ -6,16 +6,16 @@
   with_items:
     - "{{ traefik_config_dir }}"
 
-- name: main.yml | Download Traefik binary and install in {{ traefik_install_dir }}
+- name: main.yml | Download Traefik
   get_url:
     url: "{{ traefik_binary_url }}"
-    dest: "{{ traefik_install_dir }}"
+    dest: "/tmp"
     owner: root
     group: root
     mode: 0755
   when: traefik_binary_url is defined
 
-- name: main.yml | Download Traefik binary archive and install in {{ traefik_install_dir }}
+- name: main.yml | Unarchive {{ traefik_install_dir }}
   unarchive:
     src: "{{ traefik_archive_url }}"
     dest: "{{ traefik_install_dir }}"
@@ -25,6 +25,11 @@
     remote_src: yes
   when: traefik_archive_url is defined
 
+- name: main.yml | Add exec bit to "{{ traefik_binary_url }}"
+  file:
+    path: "{{ traefik_bin_path }}"
+    mode: "0755"
+
 - name: main.yml | Template Traefik config and unit
   template:
     src: "{{ item.src }}"
@@ -33,8 +38,8 @@
     group: root
     mode: "{{ item.mode }}"
   with_items:
-    - { src: traefik.toml.j2, dest: "{{ traefik_config_dir }}/traefik.toml", mode: '0755' }
-    - { src: rules.toml.j2, dest: "{{ traefik_config_dir }}/rules.toml", mode: '0755' }
+    - { src: traefik.yml.j2, dest: "{{ traefik_config_dir }}/traefik.yml", mode: '0755' }
+    - { src: dynamic.yml.j2, dest: "{{ traefik_config_dir }}/dynamic.yml", mode: '0755' }
     - { src: unit.j2, dest: /etc/systemd/system/traefik.service, mode: '0644'}
   notify: restart traefik
   tags: traefik_config
